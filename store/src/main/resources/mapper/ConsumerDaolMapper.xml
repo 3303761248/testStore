@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.store.activcemq.dao.ConsumerDao">
+   <!-- &lt;!&ndash;新增商品&ndash;&gt;
+    <insert id="addMessage" parameterType="com.store.activcemq.entity.QueueInfo">
+        insert into t_sys_message
+        (code,
+         context,
+         create_time)
+        values
+           (#{code},
+            #{context},
+            now())
+    </insert>-->
+</mapper>

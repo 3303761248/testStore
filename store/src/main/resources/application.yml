@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/xingzoushudian?serverTimezone=UTC&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: 123456
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+  activemq:
+    user: admin
+    password: admin
+    broker-url: tcp://127.0.0.1:61616
+  jms:
+    topic-name: test-topic
+    queue-name: test-queue
+  #data:
+   # elasticsearch:
+    #  repositories:
+     #   enabled: true
+      #cluster-nodes: 127.0.0.1:9300
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml

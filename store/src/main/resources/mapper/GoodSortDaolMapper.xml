@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.store.goodSort.dao.GoodSortDao">
+
+    <!--查询商品分类名字是否存在-->
+    <select id="countGoodSortName" parameterType="com.store.goodSort.entity.GoodSortInfo" resultType="int">
+        select count(good_sort_name)
+        from t_good_sort_info
+        where good_sort_name = #{goodSortName}
+    </select>
+    <!--新增一级分类商品-->
+    <insert id="addFirstGoodSort" parameterType="com.store.goodSort.entity.GoodSortInfo">
+        insert into t_good_sort_info
+        (
+         good_sort_code,
+         good_sort_name,
+         remark,
+         rank,
+         parent_code,
+         is_deleted,
+         create_user,
+         create_time,
+         update_user,
+         update_time,
+         version
+         )
+        values
+           (#{goodSortCode},
+            #{goodSortName},
+            #{remark},
+            1,
+            '',
+            #{isDeleted},
+            #{createUser},
+            now(),
+            #{updateUser},
+            now(),
+            0
+            )
+    </insert>
+    <!--新增二级分类商品-->
+    <insert id="addSecondGoodSort" parameterType="com.store.goodSort.entity.GoodSortInfo">
+        insert into t_good_sort_info
+        (
+         good_sort_code,
+         good_sort_name,
+         remark,
+         rank,
+         parent_code,
+         is_deleted,
+         create_user,
+         create_time,
+         update_user,
+         update_time,
+         version
+         )
+        values
+           (#{goodSortCode},
+            #{goodSortName},
+            #{remark},
+            2,
+            #{firstSortCode},
+            #{isDeleted},
+            #{createUser},
+            now(),
+            #{updateUser},
+            now(),
+            0
+            )
+    </insert>
+    <!--获取商品分类详情信息-->
+    <select id="findGoodSortDetail" parameterType="java.lang.String" resultType="com.store.goodSort.entity.GoodSortInfo">
+        select
+            good_sort_name goodSortName,
+            remark
+        from t_good_sort_info
+        where good_sort_code = #{goodSortCode}
+        and is_deleted = 0
+    </select>
+    <!--删除商品分类-->
+    <update id="deleteGoodSort" parameterType="com.store.goodSort.entity.GoodSortInfo">
+        update t_good_sort_info
+        set
+        is_deleted = 1,
+        update_time = now(),
+        update_user = #{userId},
+        version = version + 1
+        where good_sort_code in
+        <foreach item="goodSortCode" index="index" collection="listCode" open="(" separator="," close=")">
+            #{goodSortCode}
+        </foreach>
+    </update>
+    <!--修改商品分类信息-->
+    <update id="updateGoodSort" parameterType="com.store.goodSort.entity.GoodSortInfo">
+        update t_good_sort_info
+        set
+            good_sort_name    = #{goodSortName},
+            remark    = #{remark},
+            rank      = #{rank},
+            parent_code          = #{parentCode},
+            update_time = now(),
+            update_user   = #{updateUser},
+            version      = version + 1
+        where good_sort_code = #{goodSortCode}
+    </update>
+    <!--商品分类列表查询-->
+    <select id="listGoodSorts" parameterType="com.store.goodSort.entity.GoodSortInfo" resultMap="goodSortMap">
+        select
+        good_sort_code goodSortCode,
+        good_sort_name goodSortName,
+        rank,
+        parent_code firstSortCode
+        from t_good_sort_info
+        where is_deleted = 0
+        order by create_time desc
+    </select>
+    <!-- 自定义结果映射 -->
+    <resultMap type="com.store.goodSort.entity.GoodSortInfo" id="goodSortMap">
+        <id property="goodSortCode" column="good_sort_code"/>
+        <result property="goodSortName" column="good_sort_name"/>
+        <result property="rank" column="rank"/>
+        <!-- 多表关联映射 -->
+        <collection property="secondList" ofType="com.store.goodSort.entity.GoodSortList">
+            <id property="goodSortCode" column="good_sort_code"/>
+            <result property="goodSortName" column="good_sort_name"/>
+            <result property="rank" column="rank"/>
+        </collection>
+    </resultMap>
+    <!--商品分类列表查询-->
+    <select id="findFirstSort" parameterType="com.store.goodSort.entity.GoodSortInfo" resultType="com.store.goodSort.entity.GoodSortInfo">
+        select
+        good_sort_code goodSortCode,
+        good_sort_name goodSortName,
+        remark
+        from t_good_sort_info
+        where is_deleted = 0
+        order by create_time desc
+    </select>
+    <!--商品分类列表查询-->
+    <select id="findSecondSort" parameterType="com.store.goodSort.entity.GoodSortInfo" resultType="com.store.goodSort.entity.GoodSortInfo">
+        select
+        good_sort_code goodSortCode,
+        good_sort_name goodSortName,
+        remark
+        from t_good_sort_info
+        where is_deleted = 0
+        order by create_time desc
+    </select>
+</mapper>

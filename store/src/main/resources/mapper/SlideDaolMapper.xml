@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.store.slide.dao.SlideDao">
+    <!--新增轮播图-->
+    <insert id="addSlideChart" parameterType="com.store.slide.entity.SlideInfo">
+        insert into t_slide_chart
+        (slide_code,
+         sort,
+         slide_photo_url,
+         good_code,
+         begin_time,
+         end_time,
+         slide_status,
+         photo_path,
+         is_deleted,
+         create_user,
+         create_time,
+         update_user,
+         update_time,
+         version
+         )
+        values
+           (#{slideCode},
+            #{sort},
+            #{slidePhotoUrl},
+            #{goodCode},
+            #{beginTime},
+            #{endTime},
+            #{slideStatus},
+            #{photoPath},
+            #{isDeleted},
+            #{createUser},
+            now(),
+            #{updateUser},
+            now(),
+            0
+            )
+    </insert>
+    <!--轮播图列表-->
+    <select id="listSlidesByPage" parameterType="com.store.slide.entity.SlideInfo" resultType="com.store.slide.entity.SlideInfo">
+        select
+        a.slide_code slideCode,
+        a.sort,
+        a.slide_photo_url slidePhotoUrl,
+        a.slide_status slideStatus,
+        a.photo_path photoPath,
+        a.begin_time beginTime,
+        a.end_time endTime,
+        from t_slide_chart a
+        where a.is_deleted = 0
+        <if test="slideStatus != null and slideStatus !=''">
+            and  slide_status = #{slideStatus}
+        </if>
+        order by create_time desc
+    </select>
+    <!--删除轮播图-->
+    <update id="deleteSlideChart" parameterType="com.store.slide.entity.SlideInfo">
+        update t_slide_chart
+        set
+        is_deleted = 1,
+        update_time = now(),
+        update_user = #{userId},
+        version = version + 1
+        where slide_code in
+        <foreach item="slideCode" index="index" collection="listCode" open="(" separator="," close=")">
+            #{slideCode}
+        </foreach>
+    </update>
+    <!--修改轮播图禁用启用状态-->
+    <update id="updateSlideChartStatus" parameterType="com.store.slide.entity.SlideInfo">
+        update t_slide_chart
+        set
+           slide_status = #{slideStatus},
+           update_time = now(),
+            update_user   = #{updateUser},
+            version      = version + 1
+        where slide_code = #{slideCode}
+    </update>
+    <!--轮播图新增商品选择列表-->
+    <select id="listSlidesByPage2" parameterType="com.store.good.entity.GoodInfo" resultType="com.store.good.entity.GoodInfo">
+        select
+        a.good_code goodCode,
+        a.good_name goodName,
+        a.good_status goodStatus,
+        a.second_sort_code secondSortCode,
+        from t_good_info a
+        where a.is_deleted = 0
+        <if test="goodName !=null and goodName !=''">
+            and a.good_name like concat('%',#{goodName},'%')
+        </if>
+        <if test="goodCode !=null and goodCode !=''">
+            and a.good_code like concat('%',#{goodCode},'%')
+        </if>
+        order by create_time desc
+    </select>
+</mapper>

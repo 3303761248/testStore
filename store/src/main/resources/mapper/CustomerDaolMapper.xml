@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.store.customer.dao.CustomerDao">
+    <!--客户列表-->
+    <select id="listCustomers" parameterType="com.store.customer.entity.CustomerInfo" resultType="com.store.customer.entity.CustomerInfo">
+        select
+        a.customer_account customerAccount,
+        a.customer_name customerName,
+        a.customer_sex customerSex,
+        a.phone,
+        a.email,
+        a.id_card idCard,
+        a.customer_code customerCode,
+        a.is_deleted isDeleted,
+        a.create_time createTime,
+        a.create_user createUser,
+        a.update_time updateTime,
+        a.update_user updateUser,
+        a.version
+        from t_customer_master a
+        where a.is_deleted = 0
+        <if test="customerName != null and customerName != ''">
+            and a.customer_name like concat('%', #{customerName}, '%')
+        </if>
+        <if test="customerAccount != null and customerAccount != ''">
+            and a.customer_account like concat('%', #{customerAccount}, '%')
+        </if>
+        order by create_time desc
+    </select>
+</mapper>

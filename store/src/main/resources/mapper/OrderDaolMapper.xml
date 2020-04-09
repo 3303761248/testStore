@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.store.order.dao.OrderDao">
+    <!--获取订单详情信息-->
+    <select id="findOrderDetail" parameterType="java.lang.String" resultType="com.store.order.entity.OrderDetail">
+        select
+            tom.user_code userCode,
+            tod.order_code orderCode,
+            tod.good_code goodCode,
+            tod.good_name goodName,
+            tod.count,
+            tod.total_price totalPrice,
+            tod.sell_price sellPrice,
+            tod.set_price setPrice
+        from
+            t_order_detail tod,
+            t_order_master tom
+        where tod.order_code = tom.order_code
+        and tod.order_code = #{orderCode}
+    </select>
+    <!--订单列表-->
+    <select id="listOrdersByPage" parameterType="com.store.order.entity.OrderList" resultType="com.store.order.entity.OrderList">
+        select
+        a.order_code orderCode,
+        a.total_price totalPrice,
+        a.order_status orderStatus,
+        a.pay_status payStatus,
+        a.store_code storeCode,
+        a.user_name userName,
+        a.phone phone,
+        a.pay_time payTime
+        from t_order_master a,
+              t_sys_user b,
+              t_store_info c
+        where a.user_code = b.user_code
+        and   b.user_code = c.user_code
+        <if test="userName != null and userName != ''">
+            and a.user_name like concat('%', #{userName}, '%')
+        </if>
+        <if test="orderCode != null and orderCode != ''">
+            and a.order_code like concat('%', #{orderCode}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and a.phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="payTimeStart != null and payTimeStart != ''">
+            and a.pay_time_start >= #{payTimeStart}
+        </if>
+        <if test="payTimeEnd != null and payTimeEnd != ''">
+            and a.pay_time_end = #{payTimeEnd}
+        </if>
+        <if test="orderStatus != null and orderStatus != ''">
+            and a.order_status = #{orderStatus}
+        </if>
+    </select>
+    <!--订单状态修改-->
+    <update id="updateOrderStatus" parameterType="com.store.order.entity.OrderList">
+          update t_order_master
+          set
+           order_status = #{orderStatus},
+           update_time = now(),
+           update_user   = #{updateUser},
+           version      = version + 1
+        where order_code = #{orderCode}
+    </update>
+
+</mapper>

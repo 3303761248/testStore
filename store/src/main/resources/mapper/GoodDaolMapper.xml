@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.store.good.dao.GoodDao">
+
+    <!--查询商品名字是否存在-->
+    <select id="countGoodName" parameterType="com.store.good.entity.GoodInfo" resultType="int">
+        select count(good_name)
+        from t_good_info
+        where good_name = #{goodName}
+    </select>
+    <!--查询商品书号是否存在-->
+    <select id="countBookCode" parameterType="com.store.good.entity.GoodInfo" resultType="int">
+        select count(book_code)
+        from t_good_info
+        where book_code = #{bookCode}
+    </select>
+    <!--新增商品-->
+    <insert id="addGood" parameterType="com.store.good.entity.GoodInfo">
+        insert into t_good_info
+        (good_name,
+         set_price,
+         sell_price,
+         sale_count,
+         cate_code,
+         book_code,
+         good_introduction,
+         business_name,
+         stock,
+         is_deleted,
+         create_user,
+         create_time,
+         update_user,
+         update_time,
+         version,
+         cost_price,
+         good_code,
+         good_status,
+         author,
+         visit_count,
+         publisher,
+         second_sort_code,
+         photo_url
+         )
+        values
+           (#{goodName},
+            #{setPrice},
+            #{sellPrice},
+            #{saleCount},
+            #{cateCode},
+            #{bookCode},
+            #{goodIntroduction},
+            #{businessName},
+            #{stock},
+            #{isDeleted},
+            #{createUser},
+            now(),
+            #{updateUser},
+            now(),
+            0,
+            #{costPrice},
+            #{goodCode},
+            #{goodStatus},
+            #{author},
+            #{visitCount},
+            #{publisher},
+            #{secondSortCode},
+            #{photoUrl}
+            )
+    </insert>
+    <!--商品列表-->
+    <select id="listGoodsByPage" parameterType="com.store.good.entity.GoodInfo" resultType="com.store.good.entity.GoodInfo">
+        select
+        a.good_name goodName,
+        a.good_code goodCode,
+        a.second_sort_code secondSortCode,
+        a.advert,
+        a.good_introduction goodIntroduction,
+        a.business_name businessName,
+        a.stock,
+        a.set_price setPrice,
+        a.sell_price sellPrice,
+        a.sale_count saleCount,
+        a.good_status goodStatus,
+        a.visit_count visitCount,
+        a.good_code goodCode,
+        a.publisher,
+        a.author,
+        from t_good_info a
+        where a.is_deleted = 0
+        <if test="goodName != null and goodName != ''">
+            and a.good_name like concat('%', #{goodName}, '%')
+        </if>
+        <if test="advert != null and advert != ''">
+            and a.advert like concat('%', #{advert}, '%')
+        </if>
+        <if test="publisher != null and publisher != ''">
+            and a.publisher like concat('%', #{publisher}, '%')
+        </if>
+        <if test="author != null and author != ''">
+            and a.author like concat('%', #{author}, '%')
+        </if>
+        <if test="goodStatus != null and goodStatus != ''">
+            and a.good_status = #{goodStatus}
+        </if>
+        order by create_time desc
+    </select>
+    <!--删除商品-->
+    <update id="deleteGood" parameterType="com.store.good.entity.GoodInfo">
+        update t_good_info
+        set
+        is_deleted = 1,
+        update_time = now(),
+        update_user = #{userId},
+        version = version + 1
+        where good_code in
+        <foreach item="goodCode" index="index" collection="listCode" open="(" separator="," close=")">
+            #{goodCode}
+        </foreach>
+    </update>
+    <!--修改商品信息-->
+    <update id="updateGood" parameterType="com.store.good.entity.GoodInfo">
+        update t_good_info
+        set
+            good_name    = #{goodName},
+            book_code    = #{bookCode},
+            second_sort_code      = #{secondSortCode},
+            advert          = #{advert},
+            good_introduction        = #{goodIntroduction},
+            business_name        = #{businessName},
+            stock       = #{stock},
+            cost_price       = #{costPrice},
+            sell_price       = #{sellPrice},
+            photo_url       = #{photoUrl},
+            publisher       = #{publisher},
+            author       = #{author},
+            update_time = now(),
+            update_user   = #{updateUser},
+            version      = version + 1
+        where good_code = #{goodCode}
+    </update>
+    <!--获取商品信息-->
+    <select id="findGoodDetail" parameterType="java.lang.String" resultType="com.store.good.entity.GoodInfo">
+        select
+            good_name goodName,
+            book_code bookCode,
+            second_sort_code secondSortCode,
+            advert,
+            good_introduction goodIntroduction,
+            business_name businessName,
+            cost_price costPrice,
+            sell_price sellPrice,
+            photo_url photoUrl,
+            publisher,
+            author
+        from t_good_info
+        where good_code = #{goodCode}
+        and is_deleted = 0
+    </select>
+    <!--修改商品上架下架-->
+    <update id="updateShelvesGood" parameterType="com.store.good.entity.GoodInfo">
+        update t_good_info
+        set
+           good_status = #{goodStatus},
+           update_time = now(),
+            update_user   = #{updateUser},
+            version      = version + 1
+        where good_code = #{goodCode}
+    </update>
+</mapper>
